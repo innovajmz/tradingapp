@@ -1,6 +1,16 @@
 "use client";
 import { useState } from "react";
 import { ACCOUNT_TYPES, ACCOUNT_STATUS } from "@/lib/metrics";
+import PillSelect from "@/components/PillSelect";
+
+const DAILY_LOSS_TYPES = [
+  { value: "static", label: "Estático" },
+  { value: "dynamic", label: "Dinámico" },
+];
+const DRAWDOWN_TYPES = [
+  { value: "static", label: "Estático" },
+  { value: "trailing", label: "Trailing" },
+];
 
 export default function AccountModal({ account, onClose, onSave, busy }) {
   const isEdit = !!account;
@@ -57,19 +67,13 @@ export default function AccountModal({ account, onClose, onSave, busy }) {
             <input value={form.name} onChange={(e) => set("name", e.target.value)} placeholder="Ej. FTMO 100k #1" required autoFocus />
           </div>
 
-          <div className="form-row">
-            <div className="form-group">
-              <label>Tipo de cuenta</label>
-              <select value={form.type} onChange={(e) => set("type", e.target.value)}>
-                {ACCOUNT_TYPES.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}
-              </select>
-            </div>
-            <div className="form-group">
-              <label>Estado</label>
-              <select value={form.status} onChange={(e) => set("status", e.target.value)}>
-                {ACCOUNT_STATUS.map((s) => <option key={s.value} value={s.value}>{s.label}</option>)}
-              </select>
-            </div>
+          <div className="form-group">
+            <label>Tipo de cuenta</label>
+            <PillSelect layoutId="account-type-bg" options={ACCOUNT_TYPES} value={form.type} onChange={(v) => set("type", v)} />
+          </div>
+          <div className="form-group">
+            <label>Estado</label>
+            <PillSelect layoutId="account-status-bg" options={ACCOUNT_STATUS} value={form.status} onChange={(v) => set("status", v)} />
           </div>
 
           <div className="form-group">
@@ -106,32 +110,22 @@ export default function AccountModal({ account, onClose, onSave, busy }) {
             <input type="number" step="0.1" value={form.profit_target_pct} onChange={(e) => set("profit_target_pct", e.target.value)} placeholder="Ej. 10" />
           </div>
 
-          <div className="form-row">
-            <div className="form-group">
-              <label>Pérdida diaria máxima (%)</label>
-              <input type="number" step="0.1" value={form.max_daily_loss_pct} onChange={(e) => set("max_daily_loss_pct", e.target.value)} placeholder="Ej. 5" />
-            </div>
-            <div className="form-group">
-              <label>Base de pérdida diaria</label>
-              <select value={form.daily_loss_type} onChange={(e) => set("daily_loss_type", e.target.value)}>
-                <option value="static">Estático (balance inicial)</option>
-                <option value="dynamic">Dinámico (balance del día anterior)</option>
-              </select>
-            </div>
+          <div className="form-group">
+            <label>Pérdida diaria máxima (%)</label>
+            <input type="number" step="0.1" value={form.max_daily_loss_pct} onChange={(e) => set("max_daily_loss_pct", e.target.value)} placeholder="Ej. 5" />
+          </div>
+          <div className="form-group">
+            <label>Base de pérdida diaria</label>
+            <PillSelect layoutId="daily-loss-type-bg" options={DAILY_LOSS_TYPES} value={form.daily_loss_type} onChange={(v) => set("daily_loss_type", v)} />
           </div>
 
-          <div className="form-row">
-            <div className="form-group">
-              <label>Drawdown máximo total (%)</label>
-              <input type="number" step="0.1" value={form.max_total_drawdown_pct} onChange={(e) => set("max_total_drawdown_pct", e.target.value)} placeholder="Ej. 10" />
-            </div>
-            <div className="form-group">
-              <label>Tipo de drawdown</label>
-              <select value={form.drawdown_type} onChange={(e) => set("drawdown_type", e.target.value)}>
-                <option value="static">Estático (balance inicial)</option>
-                <option value="trailing">Trailing (pico más alto)</option>
-              </select>
-            </div>
+          <div className="form-group">
+            <label>Drawdown máximo total (%)</label>
+            <input type="number" step="0.1" value={form.max_total_drawdown_pct} onChange={(e) => set("max_total_drawdown_pct", e.target.value)} placeholder="Ej. 10" />
+          </div>
+          <div className="form-group">
+            <label>Tipo de drawdown</label>
+            <PillSelect layoutId="drawdown-type-bg" options={DRAWDOWN_TYPES} value={form.drawdown_type} onChange={(v) => set("drawdown_type", v)} />
           </div>
 
           <div className="form-group">

@@ -10,16 +10,16 @@ export default async function Home() {
 
   if (!user) redirect("/login");
 
-  const [{ data: accounts }, { data: entries }] = await Promise.all([
+  const [{ data: accounts }, { data: trades }] = await Promise.all([
     supabase.from("accounts").select("*").order("created_at", { ascending: true }),
-    supabase.from("entries").select("*"),
+    supabase.from("trades").select("*").order("created_at", { ascending: true }),
   ]);
 
   return (
     <Dashboard
       user={{ id: user.id, email: user.email }}
       initialAccounts={accounts || []}
-      initialEntries={entries || []}
+      initialTrades={trades || []}
     />
   );
 }

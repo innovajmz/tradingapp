@@ -9,11 +9,11 @@ import AccountModal from "@/components/AccountModal";
 import DayModal from "@/components/DayModal";
 import Toasts from "@/components/Toasts";
 
-export default function Dashboard({ user, initialAccounts, initialEntries }) {
+export default function Dashboard({ user, initialAccounts, initialTrades }) {
   const router = useRouter();
   const supabase = useMemo(() => createClient(), []);
   const [accounts, setAccounts] = useState(initialAccounts);
-  const [entries, setEntries] = useState(initialEntries);
+  const [trades, setTrades] = useState(initialTrades);
   const [selectedId, setSelectedId] = useState(initialAccounts[0]?.id ?? null);
   const [accountModal, setAccountModal] = useState(null); // null | 'new' | account
   const [dayModal, setDayModal] = useState(null); // null | { date }
@@ -30,7 +30,7 @@ export default function Dashboard({ user, initialAccounts, initialEntries }) {
   }
 
   const selectedAccount = accounts.find((a) => a.id === selectedId) || null;
-  const entriesFor = (accountId) => entries.filter((e) => e.account_id === accountId);
+  const tradesFor = (accountId) => trades.filter((t) => t.account_id === accountId);
 
   async function saveAccount(payload, existingId) {
     setBusy(true);
@@ -66,46 +66,61 @@ export default function Dashboard({ user, initialAccounts, initialEntries }) {
     setBusy(false);
     if (error) return pushToast("No se pudo eliminar la cuenta", "error");
     setAccounts((prev) => prev.filter((a) => a.id !== id));
-    setEntries((prev) => prev.filter((e) => e.account_id !== id));
+    setTrades((prev) => prev.filter((t) => t.account_id !== id));
     if (selectedId === id) setSelectedId(null);
     pushToast("Cuenta eliminada");
   }
 
-  async function saveEntry(accountId, date, pnl, notes) {
-    const existing = entries.find((e) => e.account_id === accountId && e.date === date);
+  async function addTrade(accountId, date, { pnl, commission, symbol, notes }) {
     setBusy(true);
-    if (existing) {
-      const { data, error } = await supabase
-        .from("entries")
-        .update({ pnl, notes })
-        .eq("id", existing.id)
-        .select()
-        .single();
-      setBusy(false);
-      if (error) return pushToast("No se pudo guardar el día", "error");
-      setEntries((prev) => prev.map((e) => (e.id === existing.id ? data : e)));
-    } else {
-      const { data, error } = await supabase
-        .from("entries")
-        .insert({ account_id: accountId, user_id: user.id, date, pnl, notes })
-        .select()
-        .single();
-      setBusy(false);
-      if (error) return pushToast("No se pudo guardar el día", "error");
-      setEntries((prev) => [...prev, data]);
+    const { data, error } = await supabase
+      .from("trades")
+      .insert({
+        account_id: accountId,
+        user_id: user.id,
+        date,
+        pnl,
+        commission,
+        symbol,
+        notes,
+      })
+      .select()
+      .single();
+    setBusy(false);
+    if (error) {
+      pushToast("No se pudo agregar la operación", "error");
+      return null;
     }
-    pushToast("Día registrado");
-    setDayModal(null);
+    setTrades((prev) => [...prev, data]);
+    pushToast("Operación agregada");
+    return data;
   }
 
-  async function deleteEntry(entryId) {
+  async function updateTrade(tradeId, { pnl, commission, symbol, notes }) {
     setBusy(true);
-    const { error } = await supabase.from("entries").delete().eq("id", entryId);
+    const { data, error } = await supabase
+      .from("trades")
+      .update({ pnl, commission, symbol, notes })
+      .eq("id", tradeId)
+      .select()
+      .single();
     setBusy(false);
-    if (error) return pushToast("No se pudo borrar el registro", "error");
-    setEntries((prev) => prev.filter((e) => e.id !== entryId));
-    pushToast("Registro borrado");
-    setDayModal(null);
+    if (error) {
+      pushToast("No se pudo actualizar la operación", "error");
+      return null;
+    }
+    setTrades((prev) => prev.map((t) => (t.id === tradeId ? data : t)));
+    pushToast("Operación actualizada");
+    return data;
+  }
+
+  async function deleteTrade(tradeId) {
+    setBusy(true);
+    const { error } = await supabase.from("trades").delete().eq("id", tradeId);
+    setBusy(false);
+    if (error) return pushToast("No se pudo borrar la operación", "error");
+    setTrades((prev) => prev.filter((t) => t.id !== tradeId));
+    pushToast("Operación borrada");
   }
 
   async function logout() {
@@ -118,7 +133,7 @@ export default function Dashboard({ user, initialAccounts, initialEntries }) {
     <div className="app">
       <Sidebar
         accounts={accounts}
-        entries={entries}
+        trades={trades}
         selectedId={selectedId}
         onSelect={setSelectedId}
         onNew={() => setAccountModal("new")}
@@ -131,7 +146,7 @@ export default function Dashboard({ user, initialAccounts, initialEntries }) {
         ) : (
           <AccountView
             account={selectedAccount}
-            entries={entriesFor(selectedAccount.id)}
+            trades={tradesFor(selectedAccount.id)}
             month={month}
             setMonth={setMonth}
             onEdit={() => setAccountModal(selectedAccount)}
@@ -157,11 +172,12 @@ export default function Dashboard({ user, initialAccounts, initialEntries }) {
       {dayModal && selectedAccount && (
         <DayModal
           date={dayModal.date}
-          entry={entries.find((e) => e.account_id === selectedAccount.id && e.date === dayModal.date) || null}
+          trades={trades.filter((t) => t.account_id === selectedAccount.id && t.date === dayModal.date)}
           busy={busy}
           onClose={() => setDayModal(null)}
-          onSave={(pnl, notes) => saveEntry(selectedAccount.id, dayModal.date, pnl, notes)}
-          onDelete={deleteEntry}
+          onAdd={(fields) => addTrade(selectedAccount.id, dayModal.date, fields)}
+          onUpdate={updateTrade}
+          onDelete={deleteTrade}
         />
       )}
 

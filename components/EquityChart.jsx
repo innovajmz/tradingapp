@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useRef } from "react";
 
-export default function EquityChart({ sorted, startingBalance }) {
+export default function EquityChart({ days, startingBalance }) {
   const canvasRef = useRef(null);
 
   useEffect(() => {
@@ -15,8 +15,8 @@ export default function EquityChart({ sorted, startingBalance }) {
     ctx.scale(dpr, dpr);
     ctx.clearRect(0, 0, rect.width, rect.height);
 
-    const points = [{ balance: startingBalance }, ...sorted.map((e, i) => ({
-      balance: startingBalance + sorted.slice(0, i + 1).reduce((s, x) => s + Number(x.pnl), 0),
+    const points = [{ balance: startingBalance }, ...days.map((d, i) => ({
+      balance: startingBalance + days.slice(0, i + 1).reduce((s, x) => s + Number(x.net), 0),
     }))];
 
     if (points.length < 2) return;
@@ -97,9 +97,9 @@ export default function EquityChart({ sorted, startingBalance }) {
     ctx.shadowBlur = 12;
     ctx.fill();
     ctx.shadowBlur = 0;
-  }, [sorted, startingBalance]);
+  }, [days, startingBalance]);
 
-  if (!sorted || sorted.length === 0) {
+  if (!days || days.length === 0) {
     return (
       <div className="chart-wrap">
         <div className="chart-empty">Registrá tu primer día para ver la curva de equity</div>

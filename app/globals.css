@@ -267,6 +267,20 @@ textarea{ resize:vertical; min-height:60px; font-family: var(--font-inter); }
 .section-divider span{ font-size:10.5px; color: var(--text-dimmer); text-transform:uppercase; letter-spacing:0.06em; font-weight:700; white-space:nowrap; }
 .section-divider::before, .section-divider::after{ content:''; flex:1; height:1px; background: var(--border-soft); }
 .modal-actions{ display:flex; justify-content:flex-end; gap:10px; margin-top:18px; }
+
+.day-summary{ display:flex; justify-content:space-between; align-items:flex-end; padding:14px 16px; border-radius:12px; background: rgba(255,255,255,0.03); border:1px solid var(--border-soft); margin-bottom:14px; }
+.day-summary-label{ display:block; font-size:10.5px; color: var(--text-dimmer); text-transform:uppercase; letter-spacing:0.05em; margin-bottom:2px; }
+.day-summary-value{ font-family: var(--font-mono); font-size:20px; font-weight:800; }
+.day-summary-breakdown{ font-size:11.5px; color: var(--text-dim); }
+
+.trade-list{ display:flex; flex-direction:column; gap:8px; max-height:220px; overflow-y:auto; margin-bottom:6px; }
+.trade-row{ padding:10px 12px; border-radius:10px; background: rgba(255,255,255,0.025); border:1px solid var(--border-soft); animation: fadeUp .3s ease both; }
+.trade-row-main{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+.trade-pnl{ font-family: var(--font-mono); font-weight:700; font-size:14px; }
+.trade-symbol{ font-size:10.5px; font-weight:700; padding:2px 7px; border-radius:20px; background: rgba(124,92,255,0.16); color:#b7a6ff; text-transform:uppercase; letter-spacing:0.03em; }
+.trade-commission{ font-size:11px; color: var(--amber); }
+.trade-notes{ font-size:11.5px; color: var(--text-dim); margin-top:4px; }
+.trade-actions{ display:flex; gap:12px; margin-top:6px; }
 .checkbox-row{ display:flex; align-items:center; gap:8px; }
 .checkbox-row input{ width:auto; }
 .checkbox-row label{ margin:0; text-transform:none; font-size:12.5px; color: var(--text); }

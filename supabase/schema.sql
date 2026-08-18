@@ -20,22 +20,25 @@ create table if not exists public.accounts (
   created_at timestamptz not null default now()
 );
 
-create table if not exists public.entries (
+-- Each row is a single operation/trade (not a daily total) — a day's
+-- result is the sum of every trade logged for that date, computed in the app.
+create table if not exists public.trades (
   id uuid primary key default gen_random_uuid(),
   account_id uuid not null references public.accounts(id) on delete cascade,
   user_id uuid not null references auth.users(id) on delete cascade,
   date date not null,
   pnl numeric not null default 0,
+  commission numeric not null default 0,
+  symbol text,
   notes text,
-  created_at timestamptz not null default now(),
-  unique (account_id, date)
+  created_at timestamptz not null default now()
 );
 
-create index if not exists entries_account_id_idx on public.entries(account_id);
+create index if not exists trades_account_date_idx on public.trades(account_id, date);
 create index if not exists accounts_user_id_idx on public.accounts(user_id);
 
 alter table public.accounts enable row level security;
-alter table public.entries enable row level security;
+alter table public.trades enable row level security;
 
 drop policy if exists "accounts_select_own" on public.accounts;
 drop policy if exists "accounts_insert_own" on public.accounts;
@@ -47,12 +50,12 @@ create policy "accounts_insert_own" on public.accounts for insert with check (au
 create policy "accounts_update_own" on public.accounts for update using (auth.uid() = user_id);
 create policy "accounts_delete_own" on public.accounts for delete using (auth.uid() = user_id);
 
-drop policy if exists "entries_select_own" on public.entries;
-drop policy if exists "entries_insert_own" on public.entries;
-drop policy if exists "entries_update_own" on public.entries;
-drop policy if exists "entries_delete_own" on public.entries;
+drop policy if exists "trades_select_own" on public.trades;
+drop policy if exists "trades_insert_own" on public.trades;
+drop policy if exists "trades_update_own" on public.trades;
+drop policy if exists "trades_delete_own" on public.trades;
 
-create policy "entries_select_own" on public.entries for select using (auth.uid() = user_id);
-create policy "entries_insert_own" on public.entries for insert with check (auth.uid() = user_id);
-create policy "entries_update_own" on public.entries for update using (auth.uid() = user_id);
-create policy "entries_delete_own" on public.entries for delete using (auth.uid() = user_id);
+create policy "trades_select_own" on public.trades for select using (auth.uid() = user_id);
+create policy "trades_insert_own" on public.trades for insert with check (auth.uid() = user_id);
+create policy "trades_update_own" on public.trades for update using (auth.uid() = user_id);
+create policy "trades_delete_own" on public.trades for delete using (auth.uid() = user_id);

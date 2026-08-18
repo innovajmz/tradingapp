@@ -1,15 +1,52 @@
 "use client";
 import { useState } from "react";
+import { formatCurrency } from "@/lib/metrics";
 
-export default function DayModal({ date, entry, onClose, onSave, onDelete, busy }) {
-  const [pnl, setPnl] = useState(entry ? String(entry.pnl) : "");
-  const [notes, setNotes] = useState(entry?.notes || "");
+const EMPTY_FORM = { pnl: "", commission: "", symbol: "", notes: "" };
 
-  function handleSubmit(e) {
+export default function DayModal({ date, trades, onClose, onAdd, onUpdate, onDelete, busy }) {
+  const [form, setForm] = useState(EMPTY_FORM);
+  const [editingId, setEditingId] = useState(null);
+
+  const gross = trades.reduce((s, t) => s + Number(t.pnl), 0);
+  const commission = trades.reduce((s, t) => s + Number(t.commission || 0), 0);
+  const net = gross - commission;
+
+  function set(key, value) {
+    setForm((f) => ({ ...f, [key]: value }));
+  }
+
+  function startEdit(trade) {
+    setEditingId(trade.id);
+    setForm({
+      pnl: String(trade.pnl),
+      commission: trade.commission ? String(trade.commission) : "",
+      symbol: trade.symbol || "",
+      notes: trade.notes || "",
+    });
+  }
+
+  function cancelEdit() {
+    setEditingId(null);
+    setForm(EMPTY_FORM);
+  }
+
+  async function handleSubmit(e) {
     e.preventDefault();
-    const value = Number(pnl);
-    if (Number.isNaN(value)) return;
-    onSave(value, notes.trim() || null);
+    const pnl = Number(form.pnl);
+    if (Number.isNaN(pnl)) return;
+    const fields = {
+      pnl,
+      commission: form.commission === "" ? 0 : Number(form.commission),
+      symbol: form.symbol.trim() || null,
+      notes: form.notes.trim() || null,
+    };
+    if (editingId) {
+      await onUpdate(editingId, fields);
+    } else {
+      await onAdd(fields);
+    }
+    cancelEdit();
   }
 
   const [y, m, d] = date.split("-");
@@ -21,32 +58,89 @@ export default function DayModal({ date, entry, onClose, onSave, onDelete, busy 
     <div className="modal-overlay open" onClick={(e) => e.target === e.currentTarget && onClose()}>
       <div className="modal">
         <h3 style={{ textTransform: "capitalize" }}>{label}</h3>
+
+        {trades.length > 0 && (
+          <>
+            <div className="day-summary">
+              <div>
+                <span className="day-summary-label">Neto del día</span>
+                <span className={`day-summary-value ${net > 0 ? "pos" : net < 0 ? "neg" : "neu"}`}>
+                  {net >= 0 ? "+" : ""}{formatCurrency(net)}
+                </span>
+              </div>
+              <div className="day-summary-breakdown">
+                Bruto {formatCurrency(gross)} · Comisión {formatCurrency(commission)}
+              </div>
+            </div>
+
+            <div className="trade-list">
+              {trades.map((t) => (
+                <div key={t.id} className="trade-row">
+                  <div className="trade-row-main">
+                    <span className={`trade-pnl ${Number(t.pnl) > 0 ? "pos" : Number(t.pnl) < 0 ? "neg" : "neu"}`}>
+                      {Number(t.pnl) >= 0 ? "+" : ""}{formatCurrency(t.pnl)}
+                    </span>
+                    {t.symbol && <span className="trade-symbol">{t.symbol}</span>}
+                    {Number(t.commission) > 0 && (
+                      <span className="trade-commission">-{formatCurrency(t.commission)} comisión</span>
+                    )}
+                  </div>
+                  {t.notes && <div className="trade-notes">{t.notes}</div>}
+                  <div className="trade-actions">
+                    <button type="button" className="link-btn" onClick={() => startEdit(t)}>Editar</button>
+                    <button type="button" className="link-btn" onClick={() => onDelete(t.id)}>Borrar</button>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="section-divider"><span>{editingId ? "Editar operación" : "Agregar operación"}</span></div>
+          </>
+        )}
+
         <form onSubmit={handleSubmit}>
+          <div className="form-row">
+            <div className="form-group">
+              <label>Resultado (USD)</label>
+              <input
+                type="number"
+                step="0.01"
+                value={form.pnl}
+                onChange={(e) => set("pnl", e.target.value)}
+                placeholder="Ej. 250 o -120"
+                autoFocus
+                required
+              />
+            </div>
+            <div className="form-group">
+              <label>Comisión (USD)</label>
+              <input
+                type="number"
+                step="0.01"
+                min="0"
+                value={form.commission}
+                onChange={(e) => set("commission", e.target.value)}
+                placeholder="0"
+              />
+            </div>
+          </div>
           <div className="form-group">
-            <label>Resultado del día (USD)</label>
-            <input
-              type="number"
-              step="0.01"
-              value={pnl}
-              onChange={(e) => setPnl(e.target.value)}
-              placeholder="Ej. 250 o -120"
-              autoFocus
-              required
-            />
-            <div className="field-hint">Usá negativo para pérdidas, ej. -120.50</div>
+            <label>Par / instrumento (opcional)</label>
+            <input value={form.symbol} onChange={(e) => set("symbol", e.target.value)} placeholder="Ej. EUR/USD, XAUUSD, NAS100" />
           </div>
           <div className="form-group">
             <label>Notas (opcional)</label>
-            <textarea value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="¿Qué pasó hoy?" />
+            <textarea value={form.notes} onChange={(e) => set("notes", e.target.value)} placeholder="¿Qué pasó en esta operación?" />
           </div>
           <div className="modal-actions">
-            {entry && (
-              <button type="button" className="btn-ghost danger" onClick={() => onDelete(entry.id)} style={{ marginRight: "auto" }}>
-                Borrar
+            {editingId && (
+              <button type="button" className="btn-ghost" onClick={cancelEdit} style={{ marginRight: "auto" }}>
+                Cancelar edición
               </button>
             )}
-            <button type="button" className="btn-ghost" onClick={onClose}>Cancelar</button>
-            <button type="submit" className="btn-primary" disabled={busy}>Guardar</button>
+            <button type="button" className="btn-ghost" onClick={onClose}>Cerrar</button>
+            <button type="submit" className="btn-primary" disabled={busy}>
+              {editingId ? "Guardar cambios" : "Agregar operación"}
+            </button>
           </div>
         </form>
       </div>

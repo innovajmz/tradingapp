@@ -41,8 +41,8 @@ function buildCalendarDays(year, month) {
   return cells;
 }
 
-export default function AccountView({ account, entries, month, setMonth, onEdit, onDelete, onDayClick }) {
-  const m = computeMetrics(account, entries);
+export default function AccountView({ account, trades, month, setMonth, onEdit, onDelete, onDayClick }) {
+  const m = computeMetrics(account, trades);
   const animatedBalance = useCountUp(m.currentBalance);
   const today = todayStr();
 
@@ -51,7 +51,7 @@ export default function AccountView({ account, entries, month, setMonth, onEdit,
   const targetHit = m.profitProgressPct !== null && m.profitProgressPct >= 100;
 
   const cells = buildCalendarDays(month.y, month.m);
-  const entryByDate = Object.fromEntries(entries.map((e) => [e.date, e]));
+  const dayByDate = Object.fromEntries(m.days.map((d) => [d.date, d]));
 
   function goMonth(delta) {
     let y = month.y, mm = month.m + delta;
@@ -157,7 +157,7 @@ export default function AccountView({ account, entries, month, setMonth, onEdit,
           {m.dailyLossLimitAmount ? (
             <>
               <div className={`stat-value ${m.todayPnl < 0 ? "neg" : m.todayPnl > 0 ? "pos" : "neu"}`}>
-                {m.todayEntry ? `${m.todayPnl >= 0 ? "+" : ""}${formatCurrency(m.todayPnl)}` : "Sin operar"}
+                {m.todayDay ? `${m.todayPnl >= 0 ? "+" : ""}${formatCurrency(m.todayPnl)}` : "Sin operar"}
               </div>
               <div className="stat-sub">Límite: {formatCurrency(m.dailyLossLimitAmount)} ({formatPct(m.dailyLossPct)} usado)</div>
               <div className="progress-track">
@@ -185,6 +185,14 @@ export default function AccountView({ account, entries, month, setMonth, onEdit,
           ) : (
             <div className="stat-sub">Sin límite configurado</div>
           )}
+        </div>
+        <div className="stat-card">
+          <div className="glow" style={{ background: "#ffb020" }} />
+          <div className="stat-label">Comisiones pagadas</div>
+          <div className="stat-value neg">{m.totalCommission > 0 ? "-" : ""}{formatCurrency(m.totalCommission)}</div>
+          <div className="stat-sub">
+            {m.totalTrades} operación{m.totalTrades === 1 ? "" : "es"} · bruto {formatCurrency(m.totalGrossPnl)}
+          </div>
         </div>
         {account.min_trading_days ? (
           <div className="stat-card">
@@ -215,8 +223,8 @@ export default function AccountView({ account, entries, month, setMonth, onEdit,
             {DOW.map((d) => <div key={d} className="cal-dow">{d}</div>)}
             {cells.map((cell, i) => {
               if (!cell) return <div key={`e${i}`} className="cal-cell empty" />;
-              const entry = entryByDate[cell.date];
-              const pnl = entry ? Number(entry.pnl) : null;
+              const day = dayByDate[cell.date];
+              const pnl = day ? day.net : null;
               const isToday = cell.date === today;
               const isBreach =
                 (m.dailyLossLimitAmount && pnl < 0 && Math.abs(pnl) >= m.dailyLossLimitAmount);
@@ -229,7 +237,12 @@ export default function AccountView({ account, entries, month, setMonth, onEdit,
               ].filter(Boolean).join(" ");
               return (
                 <button key={cell.date} className={cls} onClick={() => onDayClick(cell.date)} style={{ animationDelay: `${i * 8}ms` }}>
-                  <span className="cal-daynum">{cell.day}</span>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+                    <span className="cal-daynum">{cell.day}</span>
+                    {day && day.trades.length > 1 && (
+                      <span style={{ fontSize: "9px", color: "var(--text-dimmer)", fontWeight: 700 }}>{day.trades.length}×</span>
+                    )}
+                  </div>
                   {pnl !== null && (
                     <span className={`cal-pnl ${pnl > 0 ? "pos" : pnl < 0 ? "neg" : "neu"}`}>
                       {pnl >= 0 ? "+" : ""}{formatCurrency(pnl)}
@@ -246,7 +259,7 @@ export default function AccountView({ account, entries, month, setMonth, onEdit,
             <div className="card-head">
               <span className="card-title">Curva de equity</span>
             </div>
-            <EquityChart sorted={m.sorted} startingBalance={m.startingBalance} />
+            <EquityChart days={m.days} startingBalance={m.startingBalance} />
           </div>
 
           {showSplit && (

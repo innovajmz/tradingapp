@@ -10,16 +10,16 @@ const TYPE_LABEL = {
   demo: "Demo",
 };
 
-export default function Sidebar({ accounts, entries, selectedId, onSelect, onNew, userEmail, onLogout }) {
-  const entriesFor = (id) => entries.filter((e) => e.account_id === id);
+export default function Sidebar({ accounts, trades, selectedId, onSelect, onNew, userEmail, onLogout }) {
+  const tradesFor = (id) => trades.filter((t) => t.account_id === id);
 
   const totalBalance = accounts.reduce((sum, a) => {
-    const m = computeMetrics(a, entriesFor(a.id));
+    const m = computeMetrics(a, tradesFor(a.id));
     return sum + m.currentBalance;
   }, 0);
 
   const totalToday = accounts.reduce((sum, a) => {
-    const m = computeMetrics(a, entriesFor(a.id));
+    const m = computeMetrics(a, tradesFor(a.id));
     return sum + m.todayPnl;
   }, 0);
 
@@ -68,7 +68,7 @@ export default function Sidebar({ accounts, entries, selectedId, onSelect, onNew
           <div className="empty-list-hint">Todavía no tenés cuentas.<br />Creá la primera con el botón +.</div>
         )}
         {accounts.map((a, i) => {
-          const m = computeMetrics(a, entriesFor(a.id));
+          const m = computeMetrics(a, tradesFor(a.id));
           const risk = Math.max(m.drawdownPct || 0, m.dailyLossPct || 0);
           const level = riskLevel(risk);
           return (

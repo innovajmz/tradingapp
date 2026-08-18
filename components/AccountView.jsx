@@ -6,7 +6,7 @@ import {
   riskLevel,
   fillClass,
   badgeClass,
-  typeIcon,
+  typeCode,
   todayStr,
 } from "@/lib/metrics";
 import { useCountUp } from "@/lib/useCountUp";
@@ -66,7 +66,7 @@ export default function AccountView({ account, trades, month, setMonth, onEdit, 
     <div className="view">
       <div className="acc-header">
         <div className="acc-header-left">
-          <div className="acc-avatar">{typeIcon(account.type)}</div>
+          <div className="acc-avatar">{typeCode(account.type)}</div>
           <div>
             <div className="acc-title-row">
               <h1 className="acc-h1">{account.name}</h1>
@@ -86,33 +86,33 @@ export default function AccountView({ account, trades, month, setMonth, onEdit, 
 
       {drawdownLevel === "danger" && (
         <div className="alert-banner alert-danger">
-          <span className="alert-icon">⛔</span>
+          <span className="alert-tag">DRAWDOWN</span>
           Estás a {formatPct(100 - Math.min(100, m.drawdownPct))} de romper el drawdown máximo permitido
           ({formatPct(m.drawdownPct)} del límite ya usado).
         </div>
       )}
       {drawdownLevel === "warning" && (
         <div className="alert-banner alert-warning">
-          <span className="alert-icon">⚠️</span>
+          <span className="alert-tag">DRAWDOWN</span>
           Vas usando {formatPct(m.drawdownPct)} de tu drawdown máximo permitido. Cuidado con el riesgo.
         </div>
       )}
       {dailyLossLevel === "danger" && (
         <div className="alert-banner alert-danger">
-          <span className="alert-icon">⛔</span>
+          <span className="alert-tag">PÉRDIDA DIARIA</span>
           Hoy vas usando {formatPct(m.dailyLossPct)} de tu límite de pérdida diaria.
         </div>
       )}
       {dailyLossLevel === "warning" && (
         <div className="alert-banner alert-warning">
-          <span className="alert-icon">⚠️</span>
+          <span className="alert-tag">PÉRDIDA DIARIA</span>
           Hoy vas usando {formatPct(m.dailyLossPct)} de tu límite de pérdida diaria. Frená si se acerca al 100%.
         </div>
       )}
       {targetHit && (
         <div className="alert-banner alert-success">
-          <span className="alert-icon">🏁</span>
-          ¡Meta de ganancia alcanzada! Llevás {formatCurrency(m.totalPnl)} de tu objetivo de {formatCurrency(m.profitTargetAmount)}.
+          <span className="alert-tag">OBJETIVO</span>
+          Meta de ganancia alcanzada. Llevás {formatCurrency(m.totalPnl)} de tu objetivo de {formatCurrency(m.profitTargetAmount)}.
         </div>
       )}
 

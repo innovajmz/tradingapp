@@ -10,6 +10,7 @@ create table if not exists public.accounts (
   type text not null check (type in ('challenge','fondeo','real','live','futuros','demo')),
   prop_firm text,
   starting_balance numeric not null default 0,
+  total_commission numeric not null default 0,
   profit_split numeric,
   profit_target_pct numeric,
   max_daily_loss_pct numeric,
@@ -28,7 +29,6 @@ create table if not exists public.trades (
   user_id uuid not null references auth.users(id) on delete cascade,
   date date not null,
   pnl numeric not null default 0,
-  commission numeric not null default 0,
   symbol text,
   notes text,
   created_at timestamptz not null default now()

@@ -71,7 +71,7 @@ export default function Dashboard({ user, initialAccounts, initialTrades }) {
     pushToast("Cuenta eliminada");
   }
 
-  async function addTrade(accountId, date, { pnl, commission, symbol, notes }) {
+  async function addTrade(accountId, date, { pnl, symbol, notes }) {
     setBusy(true);
     const { data, error } = await supabase
       .from("trades")
@@ -80,7 +80,6 @@ export default function Dashboard({ user, initialAccounts, initialTrades }) {
         user_id: user.id,
         date,
         pnl,
-        commission,
         symbol,
         notes,
       })
@@ -96,11 +95,11 @@ export default function Dashboard({ user, initialAccounts, initialTrades }) {
     return data;
   }
 
-  async function updateTrade(tradeId, { pnl, commission, symbol, notes }) {
+  async function updateTrade(tradeId, { pnl, symbol, notes }) {
     setBusy(true);
     const { data, error } = await supabase
       .from("trades")
-      .update({ pnl, commission, symbol, notes })
+      .update({ pnl, symbol, notes })
       .eq("id", tradeId)
       .select()
       .single();

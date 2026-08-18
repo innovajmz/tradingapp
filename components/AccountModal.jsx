@@ -9,6 +9,7 @@ export default function AccountModal({ account, onClose, onSave, busy }) {
     type: account?.type || "challenge",
     prop_firm: account?.prop_firm || "",
     starting_balance: account?.starting_balance ?? 10000,
+    total_commission: account?.total_commission ?? "",
     profit_split: account?.profit_split ?? "",
     profit_target_pct: account?.profit_target_pct ?? "",
     max_daily_loss_pct: account?.max_daily_loss_pct ?? "",
@@ -29,6 +30,7 @@ export default function AccountModal({ account, onClose, onSave, busy }) {
       type: form.type,
       prop_firm: form.prop_firm.trim() || null,
       starting_balance: Number(form.starting_balance) || 0,
+      total_commission: form.total_commission === "" ? 0 : Number(form.total_commission),
       profit_split: form.profit_split === "" ? null : Number(form.profit_split),
       profit_target_pct: form.profit_target_pct === "" ? null : Number(form.profit_target_pct),
       max_daily_loss_pct: form.max_daily_loss_pct === "" ? null : Number(form.max_daily_loss_pct),
@@ -73,9 +75,18 @@ export default function AccountModal({ account, onClose, onSave, busy }) {
             <input value={form.prop_firm} onChange={(e) => set("prop_firm", e.target.value)} placeholder="Ej. FTMO, Apex, MyFundedFX" />
           </div>
 
-          <div className="form-group">
-            <label>Balance inicial (USD)</label>
-            <input type="number" step="0.01" value={form.starting_balance} onChange={(e) => set("starting_balance", e.target.value)} required />
+          <div className="form-row">
+            <div className="form-group">
+              <label>Balance inicial (USD)</label>
+              <input type="number" step="0.01" value={form.starting_balance} onChange={(e) => set("starting_balance", e.target.value)} required />
+            </div>
+            <div className="form-group">
+              <label>Comisión total pagada (USD)</label>
+              <input type="number" step="0.01" min="0" value={form.total_commission} onChange={(e) => set("total_commission", e.target.value)} placeholder="0" />
+            </div>
+          </div>
+          <div className="field-hint" style={{ marginTop: "-8px", marginBottom: "13px" }}>
+            Total acumulado que te ha cobrado el bróker en comisiones en esta cuenta. Actualizalo cuando quieras, no es por operación.
           </div>
 
           {showSplit && (

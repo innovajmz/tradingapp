@@ -2,15 +2,13 @@
 import { useState } from "react";
 import { formatCurrency } from "@/lib/metrics";
 
-const EMPTY_FORM = { pnl: "", commission: "", symbol: "", notes: "" };
+const EMPTY_FORM = { pnl: "", symbol: "", notes: "" };
 
 export default function DayModal({ date, trades, onClose, onAdd, onUpdate, onDelete, busy }) {
   const [form, setForm] = useState(EMPTY_FORM);
   const [editingId, setEditingId] = useState(null);
 
-  const gross = trades.reduce((s, t) => s + Number(t.pnl), 0);
-  const commission = trades.reduce((s, t) => s + Number(t.commission || 0), 0);
-  const net = gross - commission;
+  const total = trades.reduce((s, t) => s + Number(t.pnl), 0);
 
   function set(key, value) {
     setForm((f) => ({ ...f, [key]: value }));
@@ -20,7 +18,6 @@ export default function DayModal({ date, trades, onClose, onAdd, onUpdate, onDel
     setEditingId(trade.id);
     setForm({
       pnl: String(trade.pnl),
-      commission: trade.commission ? String(trade.commission) : "",
       symbol: trade.symbol || "",
       notes: trade.notes || "",
     });
@@ -37,7 +34,6 @@ export default function DayModal({ date, trades, onClose, onAdd, onUpdate, onDel
     if (Number.isNaN(pnl)) return;
     const fields = {
       pnl,
-      commission: form.commission === "" ? 0 : Number(form.commission),
       symbol: form.symbol.trim() || null,
       notes: form.notes.trim() || null,
     };
@@ -63,13 +59,13 @@ export default function DayModal({ date, trades, onClose, onAdd, onUpdate, onDel
           <>
             <div className="day-summary">
               <div>
-                <span className="day-summary-label">Neto del día</span>
-                <span className={`day-summary-value ${net > 0 ? "pos" : net < 0 ? "neg" : "neu"}`}>
-                  {net >= 0 ? "+" : ""}{formatCurrency(net)}
+                <span className="day-summary-label">Total del día</span>
+                <span className={`day-summary-value ${total > 0 ? "pos" : total < 0 ? "neg" : "neu"}`}>
+                  {total >= 0 ? "+" : ""}{formatCurrency(total)}
                 </span>
               </div>
               <div className="day-summary-breakdown">
-                Bruto {formatCurrency(gross)} · Comisión {formatCurrency(commission)}
+                {trades.length} operación{trades.length === 1 ? "" : "es"}
               </div>
             </div>
 
@@ -81,9 +77,6 @@ export default function DayModal({ date, trades, onClose, onAdd, onUpdate, onDel
                       {Number(t.pnl) >= 0 ? "+" : ""}{formatCurrency(t.pnl)}
                     </span>
                     {t.symbol && <span className="trade-symbol">{t.symbol}</span>}
-                    {Number(t.commission) > 0 && (
-                      <span className="trade-commission">-{formatCurrency(t.commission)} comisión</span>
-                    )}
                   </div>
                   {t.notes && <div className="trade-notes">{t.notes}</div>}
                   <div className="trade-actions">
@@ -98,30 +91,17 @@ export default function DayModal({ date, trades, onClose, onAdd, onUpdate, onDel
         )}
 
         <form onSubmit={handleSubmit}>
-          <div className="form-row">
-            <div className="form-group">
-              <label>Resultado (USD)</label>
-              <input
-                type="number"
-                step="0.01"
-                value={form.pnl}
-                onChange={(e) => set("pnl", e.target.value)}
-                placeholder="Ej. 250 o -120"
-                autoFocus
-                required
-              />
-            </div>
-            <div className="form-group">
-              <label>Comisión (USD)</label>
-              <input
-                type="number"
-                step="0.01"
-                min="0"
-                value={form.commission}
-                onChange={(e) => set("commission", e.target.value)}
-                placeholder="0"
-              />
-            </div>
+          <div className="form-group">
+            <label>Resultado (USD)</label>
+            <input
+              type="number"
+              step="0.01"
+              value={form.pnl}
+              onChange={(e) => set("pnl", e.target.value)}
+              placeholder="Ej. 250 o -120"
+              autoFocus
+              required
+            />
           </div>
           <div className="form-group">
             <label>Par / instrumento (opcional)</label>

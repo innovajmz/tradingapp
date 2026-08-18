@@ -117,7 +117,7 @@ export default function AccountView({ account, trades, month, setMonth, onEdit, 
       )}
 
       <div className="stat-grid">
-        <div className="stat-card" style={{ "--stat-accent": "var(--brand)" }}>
+        <div className="stat-card" style={{ "--stat-accent": "rgba(255,255,255,0.4)" }}>
           <div className="stat-label">Balance actual</div>
           <div className="stat-value">{formatCurrency(animatedBalance)}</div>
           <div className="stat-sub">Inicial: {formatCurrency(account.starting_balance)}</div>
@@ -129,7 +129,7 @@ export default function AccountView({ account, trades, month, setMonth, onEdit, 
           </div>
           <div className="stat-sub">{m.tradingDays} día{m.tradingDays === 1 ? "" : "s"} operado{m.tradingDays === 1 ? "" : "s"}</div>
         </div>
-        <div className="stat-card" style={{ "--stat-accent": targetHit ? "var(--green)" : "var(--brand)" }}>
+        <div className="stat-card" style={{ "--stat-accent": targetHit ? "var(--green)" : "rgba(255,255,255,0.4)" }}>
           <div className="stat-label">Meta de ganancia</div>
           {m.profitTargetAmount ? (
             <>
@@ -137,7 +137,7 @@ export default function AccountView({ account, trades, month, setMonth, onEdit, 
               <div className="stat-sub">{formatCurrency(m.totalPnl)} de {formatCurrency(m.profitTargetAmount)}</div>
               <div className="progress-track">
                 <div
-                  className={`progress-fill ${targetHit ? "fill-green" : "fill-brand"}`}
+                  className={`progress-fill ${targetHit ? "fill-green" : "fill-neutral"}`}
                   style={{ width: `${Math.max(0, Math.min(100, m.profitProgressPct))}%` }}
                 />
               </div>
@@ -146,7 +146,7 @@ export default function AccountView({ account, trades, month, setMonth, onEdit, 
             <div className="stat-sub">Sin objetivo configurado</div>
           )}
         </div>
-        <div className="stat-card" style={{ "--stat-accent": dailyLossLevel === "danger" ? "var(--red)" : "var(--brand)" }}>
+        <div className="stat-card" style={{ "--stat-accent": dailyLossLevel === "danger" ? "var(--red)" : "rgba(255,255,255,0.4)" }}>
           <div className="stat-label">Pérdida diaria (hoy)</div>
           {m.dailyLossLimitAmount ? (
             <>
@@ -165,7 +165,7 @@ export default function AccountView({ account, trades, month, setMonth, onEdit, 
             <div className="stat-sub">Sin límite configurado</div>
           )}
         </div>
-        <div className="stat-card" style={{ "--stat-accent": drawdownLevel === "danger" ? "var(--red)" : "var(--brand)" }}>
+        <div className="stat-card" style={{ "--stat-accent": drawdownLevel === "danger" ? "var(--red)" : "rgba(255,255,255,0.4)" }}>
           <div className="stat-label">Drawdown total</div>
           {m.drawdownLimitAmount ? (
             <>
@@ -195,7 +195,7 @@ export default function AccountView({ account, trades, month, setMonth, onEdit, 
             <div className="stat-value">{m.tradingDays}/{account.min_trading_days}</div>
             <div className="progress-track">
               <div
-                className={`progress-fill ${m.tradingDays >= account.min_trading_days ? "fill-green" : "fill-brand"}`}
+                className={`progress-fill ${m.tradingDays >= account.min_trading_days ? "fill-green" : "fill-neutral"}`}
                 style={{ width: `${Math.min(100, (m.tradingDays / account.min_trading_days) * 100)}%` }}
               />
             </div>
@@ -231,12 +231,7 @@ export default function AccountView({ account, trades, month, setMonth, onEdit, 
               ].filter(Boolean).join(" ");
               return (
                 <button key={cell.date} className={cls} onClick={() => onDayClick(cell.date)} style={{ animationDelay: `${i * 8}ms` }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-                    <span className="cal-daynum">{cell.day}</span>
-                    {day && day.trades.length > 1 && (
-                      <span style={{ fontSize: "9px", color: "var(--text-dimmer)", fontWeight: 700 }}>{day.trades.length}×</span>
-                    )}
-                  </div>
+                  <span className="cal-daynum">{cell.day}</span>
                   {pnl !== null && (
                     <span className={`cal-pnl ${pnl > 0 ? "pos" : pnl < 0 ? "neg" : "neu"}`}>
                       {pnl >= 0 ? "+" : ""}{formatCurrency(pnl, { compact: true })}
@@ -253,7 +248,7 @@ export default function AccountView({ account, trades, month, setMonth, onEdit, 
             <div className="card-head">
               <span className="card-title">Curva de equity</span>
             </div>
-            <EquityChart trades={trades} startingBalance={m.startingBalance} />
+            <EquityChart days={m.days} startingBalance={m.startingBalance} />
           </div>
 
           {showSplit && (

@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { motion } from "framer-motion";
 import { createClient } from "@/lib/supabase/client";
 
 export default function LoginPage() {
@@ -58,14 +59,20 @@ export default function LoginPage() {
             className={`auth-tab ${mode === "signin" ? "active" : ""}`}
             onClick={() => { setMode("signin"); setError(""); setMessage(""); }}
           >
-            Iniciar sesión
+            {mode === "signin" && (
+              <motion.span layoutId="auth-tab-bg" className="auth-tab-bg" transition={{ type: "spring", bounce: 0.2, duration: 0.4 }} />
+            )}
+            <span className="auth-tab-label">Iniciar sesión</span>
           </button>
           <button
             type="button"
             className={`auth-tab ${mode === "signup" ? "active" : ""}`}
             onClick={() => { setMode("signup"); setError(""); setMessage(""); }}
           >
-            Crear cuenta
+            {mode === "signup" && (
+              <motion.span layoutId="auth-tab-bg" className="auth-tab-bg" transition={{ type: "spring", bounce: 0.2, duration: 0.4 }} />
+            )}
+            <span className="auth-tab-label">Crear cuenta</span>
           </button>
         </div>
 

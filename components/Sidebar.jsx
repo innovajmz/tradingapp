@@ -1,4 +1,5 @@
 "use client";
+import { motion } from "framer-motion";
 import { computeMetrics, formatCurrency, badgeClass, riskLevel } from "@/lib/metrics";
 
 const TYPE_LABEL = {
@@ -75,6 +76,13 @@ export default function Sidebar({ accounts, trades, selectedId, onSelect, onNew,
               style={{ animationDelay: `${i * 40}ms` }}
               onClick={() => onSelect(a.id)}
             >
+              {selectedId === a.id && (
+                <motion.div
+                  layoutId="active-account-strip"
+                  className="account-active-strip"
+                  transition={{ type: "spring", bounce: 0.15, duration: 0.4 }}
+                />
+              )}
               <div className="acc-top">
                 <div>
                   <div className="acc-name">{a.name}</div>
@@ -93,7 +101,7 @@ export default function Sidebar({ accounts, trades, selectedId, onSelect, onNew,
                 <div className="acc-status-strip">
                   <div
                     className={`acc-status-fill ${
-                      level === "danger" ? "fill-red" : level === "warning" ? "fill-brand" : "fill-green"
+                      level === "danger" ? "fill-red" : level === "warning" ? "fill-warn" : "fill-green"
                     }`}
                     style={{ width: `${Math.min(100, risk)}%` }}
                   />

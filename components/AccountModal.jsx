@@ -13,6 +13,7 @@ export default function AccountModal({ account, onClose, onSave, busy }) {
     profit_split: account?.profit_split ?? "",
     profit_target_pct: account?.profit_target_pct ?? "",
     max_daily_loss_pct: account?.max_daily_loss_pct ?? "",
+    daily_loss_type: account?.daily_loss_type || "static",
     max_total_drawdown_pct: account?.max_total_drawdown_pct ?? "",
     drawdown_type: account?.drawdown_type || "static",
     min_trading_days: account?.min_trading_days ?? "",
@@ -34,6 +35,7 @@ export default function AccountModal({ account, onClose, onSave, busy }) {
       profit_split: form.profit_split === "" ? null : Number(form.profit_split),
       profit_target_pct: form.profit_target_pct === "" ? null : Number(form.profit_target_pct),
       max_daily_loss_pct: form.max_daily_loss_pct === "" ? null : Number(form.max_daily_loss_pct),
+      daily_loss_type: form.daily_loss_type,
       max_total_drawdown_pct: form.max_total_drawdown_pct === "" ? null : Number(form.max_total_drawdown_pct),
       drawdown_type: form.drawdown_type,
       min_trading_days: form.min_trading_days === "" ? null : Number(form.min_trading_days),
@@ -110,23 +112,31 @@ export default function AccountModal({ account, onClose, onSave, busy }) {
               <input type="number" step="0.1" value={form.max_daily_loss_pct} onChange={(e) => set("max_daily_loss_pct", e.target.value)} placeholder="Ej. 5" />
             </div>
             <div className="form-group">
-              <label>Drawdown máximo total (%)</label>
-              <input type="number" step="0.1" value={form.max_total_drawdown_pct} onChange={(e) => set("max_total_drawdown_pct", e.target.value)} placeholder="Ej. 10" />
+              <label>Base de pérdida diaria</label>
+              <select value={form.daily_loss_type} onChange={(e) => set("daily_loss_type", e.target.value)}>
+                <option value="static">Estático (balance inicial)</option>
+                <option value="dynamic">Dinámico (balance del día anterior)</option>
+              </select>
             </div>
           </div>
 
           <div className="form-row">
             <div className="form-group">
-              <label>Tipo de drawdown</label>
-              <select value={form.drawdown_type} onChange={(e) => set("drawdown_type", e.target.value)}>
-                <option value="static">Estático (desde balance inicial)</option>
-                <option value="trailing">Trailing (desde el pico más alto)</option>
-              </select>
+              <label>Drawdown máximo total (%)</label>
+              <input type="number" step="0.1" value={form.max_total_drawdown_pct} onChange={(e) => set("max_total_drawdown_pct", e.target.value)} placeholder="Ej. 10" />
             </div>
             <div className="form-group">
-              <label>Días mínimos de trading</label>
-              <input type="number" step="1" value={form.min_trading_days} onChange={(e) => set("min_trading_days", e.target.value)} placeholder="Opcional" />
+              <label>Tipo de drawdown</label>
+              <select value={form.drawdown_type} onChange={(e) => set("drawdown_type", e.target.value)}>
+                <option value="static">Estático (balance inicial)</option>
+                <option value="trailing">Trailing (pico más alto)</option>
+              </select>
             </div>
+          </div>
+
+          <div className="form-group">
+            <label>Días mínimos de trading</label>
+            <input type="number" step="1" value={form.min_trading_days} onChange={(e) => set("min_trading_days", e.target.value)} placeholder="Opcional" />
           </div>
 
           <div className="modal-actions">

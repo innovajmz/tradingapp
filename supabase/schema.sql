@@ -14,6 +14,7 @@ create table if not exists public.accounts (
   profit_split numeric,
   profit_target_pct numeric,
   max_daily_loss_pct numeric,
+  daily_loss_type text not null default 'static' check (daily_loss_type in ('static','dynamic')),
   max_total_drawdown_pct numeric,
   drawdown_type text not null default 'static' check (drawdown_type in ('static','trailing')),
   min_trading_days integer,

@@ -159,7 +159,10 @@ export default function AccountView({ account, trades, month, setMonth, onEdit, 
               <div className={`stat-value ${m.todayPnl < 0 ? "neg" : m.todayPnl > 0 ? "pos" : "neu"}`}>
                 {m.todayDay ? `${m.todayPnl >= 0 ? "+" : ""}${formatCurrency(m.todayPnl)}` : "Sin operar"}
               </div>
-              <div className="stat-sub">Límite: {formatCurrency(m.dailyLossLimitAmount)} ({formatPct(m.dailyLossPct)} usado)</div>
+              <div className="stat-sub">
+                Límite: {formatCurrency(m.dailyLossLimitAmount)} ({formatPct(m.dailyLossPct)} usado)
+                {account.daily_loss_type === "dynamic" ? " · dinámico" : " · estático"}
+              </div>
               <div className="progress-track">
                 <div className={`progress-fill ${fillClass(dailyLossLevel)}`} style={{ width: `${Math.min(100, m.dailyLossPct)}%` }} />
               </div>
@@ -227,7 +230,7 @@ export default function AccountView({ account, trades, month, setMonth, onEdit, 
               const pnl = day ? day.net : null;
               const isToday = cell.date === today;
               const isBreach =
-                (m.dailyLossLimitAmount && pnl < 0 && Math.abs(pnl) >= m.dailyLossLimitAmount);
+                day && day.dailyLossLimitAmount && pnl < 0 && Math.abs(pnl) >= day.dailyLossLimitAmount;
               const cls = [
                 "cal-cell",
                 isToday ? "today" : "",

@@ -1,10 +1,20 @@
 "use client";
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { Suspense, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
 export default function LoginPage() {
+  return (
+    <Suspense fallback={null}>
+      <LoginForm />
+    </Suspense>
+  );
+}
+
+function LoginForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const confirmFailed = searchParams.get("error") === "confirm_failed";
   const [mode, setMode] = useState("signin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -29,7 +39,7 @@ export default function LoginPage() {
       const { error } = await supabase.auth.signUp({ email, password });
       setLoading(false);
       if (error) return setError(traducirError(error.message));
-      setMessage("Cuenta creada. Revisá tu correo para confirmar el registro y luego iniciá sesión.");
+      setMessage("Cuenta creada. Revisá tu correo y hacé clic en el enlace para activarla — vas a quedar con la sesión iniciada.");
       setMode("signin");
     }
   }
@@ -69,7 +79,11 @@ export default function LoginPage() {
           </button>
         </div>
 
-        {error && <div className="auth-error">{error}</div>}
+        {(error || confirmFailed) && (
+          <div className="auth-error">
+            {error || "El enlace de confirmación ya venció o no es válido. Iniciá sesión o creá la cuenta de nuevo."}
+          </div>
+        )}
         {message && <div className="auth-success">{message}</div>}
 
         <form onSubmit={handleSubmit}>

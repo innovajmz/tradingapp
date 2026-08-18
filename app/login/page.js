@@ -1,20 +1,13 @@
 "use client";
-import { Suspense, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
 export default function LoginPage() {
-  return (
-    <Suspense fallback={null}>
-      <LoginForm />
-    </Suspense>
+  const [confirmFailed] = useState(
+    () => typeof window !== "undefined" && new URLSearchParams(window.location.search).get("error") === "confirm_failed"
   );
-}
-
-function LoginForm() {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const confirmFailed = searchParams.get("error") === "confirm_failed";
   const [mode, setMode] = useState("signin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");

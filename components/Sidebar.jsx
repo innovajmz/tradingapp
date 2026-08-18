@@ -27,14 +27,11 @@ export default function Sidebar({ accounts, trades, selectedId, onSelect, onNew,
     <aside className="sidebar">
       <div className="brand">
         <div className="brand-mark">
-          <svg viewBox="0 0 24 24" width="22" height="22">
-            <path d="M3 17l5-5 4 4 8-9" stroke="url(#sg)" strokeWidth="2.2" fill="none" strokeLinecap="round" strokeLinejoin="round" />
-            <defs>
-              <linearGradient id="sg" x1="0" y1="0" x2="24" y2="24">
-                <stop offset="0" stopColor="#7c5cff" />
-                <stop offset="1" stopColor="#00e5ff" />
-              </linearGradient>
-            </defs>
+          <svg viewBox="0 0 20 20" width="18" height="18">
+            <line x1="5" y1="3" x2="5" y2="9" stroke="#33d69f" strokeWidth="1.6" />
+            <rect x="3" y="6" width="4" height="6" rx="1" fill="#33d69f" />
+            <line x1="15" y1="8" x2="15" y2="17" stroke="#ff5470" strokeWidth="1.6" />
+            <rect x="13" y="10" width="4" height="6" rx="1" fill="#ff5470" />
           </svg>
         </div>
         <div className="brand-text">
@@ -96,7 +93,7 @@ export default function Sidebar({ accounts, trades, selectedId, onSelect, onNew,
                 <div className="acc-status-strip">
                   <div
                     className={`acc-status-fill ${
-                      level === "danger" ? "fill-red" : level === "warning" ? "fill-amber" : "fill-green"
+                      level === "danger" ? "fill-red" : level === "warning" ? "fill-brand" : "fill-green"
                     }`}
                     style={{ width: `${Math.min(100, risk)}%` }}
                   />

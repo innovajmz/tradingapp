@@ -71,9 +71,7 @@ export default function AccountView({ account, trades, month, setMonth, onEdit, 
             <div className="acc-title-row">
               <h1 className="acc-h1">{account.name}</h1>
               <span className={badgeClass(account.type)}>{TYPE_LABEL[account.type] || account.type}</span>
-              <span className="acc-badge" style={{ background: "rgba(255,255,255,0.08)", color: "var(--text-dim)" }}>
-                {STATUS_LABEL[account.status] || account.status}
-              </span>
+              <span className="acc-badge">{STATUS_LABEL[account.status] || account.status}</span>
             </div>
             <div className="acc-header-sub">
               {account.prop_firm ? `${account.prop_firm} · ` : ""}Balance inicial {formatCurrency(account.starting_balance)}
@@ -119,22 +117,19 @@ export default function AccountView({ account, trades, month, setMonth, onEdit, 
       )}
 
       <div className="stat-grid">
-        <div className="stat-card">
-          <div className="glow" style={{ background: "#7c5cff" }} />
+        <div className="stat-card" style={{ "--stat-accent": "var(--brand)" }}>
           <div className="stat-label">Balance actual</div>
           <div className="stat-value">{formatCurrency(animatedBalance)}</div>
           <div className="stat-sub">Inicial: {formatCurrency(account.starting_balance)}</div>
         </div>
-        <div className="stat-card">
-          <div className="glow" style={{ background: m.totalPnl >= 0 ? "#21e6a1" : "#ff4d6a" }} />
+        <div className="stat-card" style={{ "--stat-accent": m.totalPnl >= 0 ? "var(--green)" : "var(--red)" }}>
           <div className="stat-label">Ganancia / pérdida total</div>
           <div className={`stat-value ${m.totalPnl > 0 ? "pos" : m.totalPnl < 0 ? "neg" : "neu"}`}>
             {m.totalPnl >= 0 ? "+" : ""}{formatCurrency(m.totalPnl)}
           </div>
           <div className="stat-sub">{m.tradingDays} día{m.tradingDays === 1 ? "" : "s"} operado{m.tradingDays === 1 ? "" : "s"}</div>
         </div>
-        <div className="stat-card">
-          <div className="glow" style={{ background: "#00e5ff" }} />
+        <div className="stat-card" style={{ "--stat-accent": targetHit ? "var(--green)" : "var(--brand)" }}>
           <div className="stat-label">Meta de ganancia</div>
           {m.profitTargetAmount ? (
             <>
@@ -142,7 +137,7 @@ export default function AccountView({ account, trades, month, setMonth, onEdit, 
               <div className="stat-sub">{formatCurrency(m.totalPnl)} de {formatCurrency(m.profitTargetAmount)}</div>
               <div className="progress-track">
                 <div
-                  className={`progress-fill ${targetHit ? "fill-green" : "fill-accent"}`}
+                  className={`progress-fill ${targetHit ? "fill-green" : "fill-brand"}`}
                   style={{ width: `${Math.max(0, Math.min(100, m.profitProgressPct))}%` }}
                 />
               </div>
@@ -151,8 +146,7 @@ export default function AccountView({ account, trades, month, setMonth, onEdit, 
             <div className="stat-sub">Sin objetivo configurado</div>
           )}
         </div>
-        <div className="stat-card">
-          <div className="glow" style={{ background: dailyLossLevel === "danger" ? "#ff4d6a" : "#ffb020" }} />
+        <div className="stat-card" style={{ "--stat-accent": dailyLossLevel === "danger" ? "var(--red)" : "var(--brand)" }}>
           <div className="stat-label">Pérdida diaria (hoy)</div>
           {m.dailyLossLimitAmount ? (
             <>
@@ -171,8 +165,7 @@ export default function AccountView({ account, trades, month, setMonth, onEdit, 
             <div className="stat-sub">Sin límite configurado</div>
           )}
         </div>
-        <div className="stat-card">
-          <div className="glow" style={{ background: drawdownLevel === "danger" ? "#ff4d6a" : "#7c5cff" }} />
+        <div className="stat-card" style={{ "--stat-accent": drawdownLevel === "danger" ? "var(--red)" : "var(--brand)" }}>
           <div className="stat-label">Drawdown total</div>
           {m.drawdownLimitAmount ? (
             <>
@@ -189,8 +182,7 @@ export default function AccountView({ account, trades, month, setMonth, onEdit, 
             <div className="stat-sub">Sin límite configurado</div>
           )}
         </div>
-        <div className="stat-card">
-          <div className="glow" style={{ background: "#ffb020" }} />
+        <div className="stat-card" style={{ "--stat-accent": "var(--red)" }}>
           <div className="stat-label">Comisiones pagadas</div>
           <div className="stat-value neg">{m.totalCommission > 0 ? "-" : ""}{formatCurrency(m.totalCommission)}</div>
           <div className="stat-sub">
@@ -198,13 +190,12 @@ export default function AccountView({ account, trades, month, setMonth, onEdit, 
           </div>
         </div>
         {account.min_trading_days ? (
-          <div className="stat-card">
-            <div className="glow" style={{ background: "#21e6a1" }} />
+          <div className="stat-card" style={{ "--stat-accent": "var(--green)" }}>
             <div className="stat-label">Días mínimos requeridos</div>
             <div className="stat-value">{m.tradingDays}/{account.min_trading_days}</div>
             <div className="progress-track">
               <div
-                className={`progress-fill ${m.tradingDays >= account.min_trading_days ? "fill-green" : "fill-accent"}`}
+                className={`progress-fill ${m.tradingDays >= account.min_trading_days ? "fill-green" : "fill-brand"}`}
                 style={{ width: `${Math.min(100, (m.tradingDays / account.min_trading_days) * 100)}%` }}
               />
             </div>
@@ -248,7 +239,7 @@ export default function AccountView({ account, trades, month, setMonth, onEdit, 
                   </div>
                   {pnl !== null && (
                     <span className={`cal-pnl ${pnl > 0 ? "pos" : pnl < 0 ? "neg" : "neu"}`}>
-                      {pnl >= 0 ? "+" : ""}{formatCurrency(pnl)}
+                      {pnl >= 0 ? "+" : ""}{formatCurrency(pnl, { compact: true })}
                     </span>
                   )}
                 </button>

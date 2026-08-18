@@ -48,16 +48,13 @@ function LoginForm() {
     <div className="auth-wrap">
       <div className="auth-card">
         <div className="auth-logo">
-          <svg viewBox="0 0 24 24" width="26" height="26">
-            <path d="M3 17l5-5 4 4 8-9" stroke="url(#g)" strokeWidth="2.2" fill="none" strokeLinecap="round" strokeLinejoin="round" />
-            <defs>
-              <linearGradient id="g" x1="0" y1="0" x2="24" y2="24">
-                <stop offset="0" stopColor="#7c5cff" />
-                <stop offset="1" stopColor="#00e5ff" />
-              </linearGradient>
-            </defs>
+          <svg viewBox="0 0 20 20" width="22" height="22">
+            <line x1="5" y1="3" x2="5" y2="9" stroke="#33d69f" strokeWidth="1.6" />
+            <rect x="3" y="6" width="4" height="6" rx="1" fill="#33d69f" />
+            <line x1="15" y1="8" x2="15" y2="17" stroke="#ff5470" strokeWidth="1.6" />
+            <rect x="13" y="10" width="4" height="6" rx="1" fill="#ff5470" />
           </svg>
-          <span style={{ fontWeight: 800, fontSize: 17 }}>
+          <span style={{ fontWeight: 700, fontSize: 17 }}>
             Trading<span className="accent-text">Calendar</span>
           </span>
         </div>

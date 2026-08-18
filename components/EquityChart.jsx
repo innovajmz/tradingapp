@@ -42,11 +42,11 @@ export default function EquityChart({ days, startingBalance }) {
     }
 
     const rising = values[values.length - 1] >= values[0];
-    const lineColor = rising ? "#21e6a1" : "#ff4d6a";
+    const lineColor = rising ? "#33d69f" : "#ff5470";
 
     // gradient fill under the line
     const grad = ctx.createLinearGradient(0, marginT, 0, H - marginB);
-    grad.addColorStop(0, rising ? "rgba(33,230,161,0.35)" : "rgba(255,77,106,0.35)");
+    grad.addColorStop(0, rising ? "rgba(51,214,159,0.3)" : "rgba(255,84,112,0.3)");
     grad.addColorStop(1, "rgba(0,0,0,0)");
 
     ctx.beginPath();

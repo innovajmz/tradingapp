@@ -253,7 +253,7 @@ export default function AccountView({ account, trades, month, setMonth, onEdit, 
             <div className="card-head">
               <span className="card-title">Curva de equity</span>
             </div>
-            <EquityChart days={m.days} startingBalance={m.startingBalance} />
+            <EquityChart trades={trades} startingBalance={m.startingBalance} />
           </div>
 
           {showSplit && (

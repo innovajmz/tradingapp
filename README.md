@@ -1,36 +1,57 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Trading Calendar
 
-## Getting Started
+Calendario y panel de riesgo para tus cuentas de trading (challenge, fondeo, real, live, futuros, demo). Registrás el resultado de cada día, definís las reglas de cada cuenta (objetivo de ganancia, pérdida diaria máxima, drawdown total) y la app te avisa cuando te acercás a romperlas. Si la cuenta tiene reparto de ganancias (%), calcula cuánto te corresponde a vos.
 
-First, run the development server:
+Hecho con Next.js (App Router), Supabase (Auth + base de datos con Row Level Security) y Tailwind CSS. Cada usuario ve solo sus propias cuentas.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## 1. Crear el proyecto en Supabase
+
+1. Entrá a [supabase.com](https://supabase.com) y creá un proyecto nuevo.
+2. Andá a **SQL Editor** → **New query**, pegá el contenido de [`supabase/schema.sql`](supabase/schema.sql) y ejecutalo. Esto crea las tablas `accounts` y `entries` con seguridad a nivel de fila (cada usuario solo ve lo suyo).
+3. Andá a **Authentication → Providers** y confirmá que "Email" esté habilitado. Si no querés que pida confirmación por correo mientras probás, podés desactivar "Confirm email" en **Authentication → Settings**.
+4. Andá a **Project Settings → API** y copiá:
+   - **Project URL**
+   - **anon public key**
+
+## 2. Variables de entorno locales
+
+Creá un archivo de variables de entorno de Next.js en la raíz del proyecto (el que Next.js carga automáticamente en desarrollo, no versionado en git) con estas dos variables:
+
+```
+NEXT_PUBLIC_SUPABASE_URL=tu-project-url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=tu-anon-key
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 3. Correr en local
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+```bash
+npm install
+npm run dev
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Abrí [http://localhost:3000](http://localhost:3000). Te va a pedir crear una cuenta (email + contraseña) antes de ver el panel.
 
-## Learn More
+## 4. Subir a GitHub
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+git add -A
+git commit -m "Trading calendar app"
+git branch -M main
+git remote add origin <url-de-tu-repo>
+git push -u origin main
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 5. Deploy en Vercel
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+1. En [vercel.com](https://vercel.com), **Add New → Project** e importá el repo de GitHub.
+2. En **Environment Variables**, agregá las mismas dos variables del paso 2 (`NEXT_PUBLIC_SUPABASE_URL` y `NEXT_PUBLIC_SUPABASE_ANON_KEY`).
+3. Deploy. Cada push a `main` vuelve a desplegar automáticamente.
 
-## Deploy on Vercel
+## Estructura
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- `app/` — rutas de Next.js (`/login`, `/` panel principal)
+- `components/` — UI del panel (sidebar, calendario, modales, gráfico de equity)
+- `lib/metrics.js` — cálculo de balance, drawdown, pérdida diaria y progreso hacia la meta
+- `lib/supabase/` — clientes de Supabase (browser y server)
+- `middleware.js` — protege las rutas y refresca la sesión
+- `supabase/schema.sql` — tablas y políticas de seguridad para correr en Supabase
